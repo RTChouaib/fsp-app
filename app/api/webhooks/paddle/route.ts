@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   const rawBody = await req.text();
   const signature = req.headers.get('paddle-signature') ?? '';
 
-  let event;
+  let event: any;
   try {
     event = await paddle.webhooks.unmarshal(
       rawBody,
@@ -21,10 +21,10 @@ export async function POST(req: Request) {
   }
 
   try {
-    switch (event.eventType) {
+    switch (event?.eventType) {
       case 'subscription.created':
       case 'subscription.updated': {
-        const sub = event.data;
+        const sub = event.data as any;
         const userId = sub.customData?.userId as string | undefined;
         if (!userId) {
           console.error('Paddle subscription event missing customData.userId', sub.id);

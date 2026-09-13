@@ -7,20 +7,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "postinstall": "prisma skills sync || exit 0",
-    "contract:emit": "prisma contract emit"
+    "lint": "eslint"
   },
   "dependencies": {
     "@paddle/paddle-node-sdk": "^3.10.0",
-    "@prisma/orm-postgres": "^8.0.0-rc.9",
-    "dotenv": "^17.4.2",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@prisma/cli-engine": "^0.2.3",
     "@prisma/client": "5.22.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
