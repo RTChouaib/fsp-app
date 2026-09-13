@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  createdAt    DateTime       @default(now())
+  subscription Subscription?
+  progress     TermProgress[]
+  mistakes     Mistake[]
+  testResults  TestResult[]
+  loginCodes   LoginCode[]
+}
+
+model LoginCode {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status               String    @default("free") // free | trial | active | expired
+  plan                 String?   // weekly | monthly | quarterly
+  paddleCustomerId     String?
+  paddleSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  updatedAt            DateTime  @updatedAt
+}
+
+model TermProgress {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  termId         String    // matches the seed dataset id, e.g. "t001"
+  timesSeen      Int       @default(0)
+  correctCount   Int       @default(0)
+  incorrectCount Int       @default(0)
+  streak         Int       @default(0)
+  confidence     Int       @default(2)
+  lastReviewed   DateTime?
+  nextReview     DateTime?
+
+  @@unique([userId, termId])
+}
+
+model Mistake {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  termId    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, termId])
+}
+
+model TestResult {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date           DateTime @default(now())
+  score          Int
+  total          Int
+  weakCategories String[]
+  wrongTermIds   String[]
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  name      String
+  props     Json?
+  createdAt DateTime @default(now())
+}
